@@ -247,6 +247,53 @@ export default function Container({}: Props) {
     );
   };
 
+  const createMaze = () => {
+    const newGrid = [...grid];
+    // for (let i = 0; i < 3; i++) {
+
+    //   // create a maze that always has a path from start to end using recursive backtracking
+    //   // https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_backtracker
+
+    //   const stack: Box[] = [];
+    //   const visited: Box[] = [];
+    //   let current = newGrid[0][0];
+    //   visited.push(current);
+
+    //   while (visited.length < rows * columns) {
+    //     const neighbors = getNeighbors(current);
+    //     const unvisitedNeighbors = neighbors.filter(
+    //       (neighbor) =>
+    //         !visited.includes(neighbor) &&
+    //         neighbor.type !== "start" &&
+    //         neighbor.type !== "end"
+    //     );
+    //     if (unvisitedNeighbors.length > 0) {
+    //       const randomNeighbor =
+    //         unvisitedNeighbors[
+    //           Math.floor(Math.random() * unvisitedNeighbors.length)
+    //         ];
+    //       stack.push(current);
+    //       current.type = "empty";
+    //       randomNeighbor.type = "wall";
+    //       current = randomNeighbor;
+    //       visited.push(current);
+    //     } else {
+    //       current = stack.pop() as Box;
+    //     }
+    //     setGrid(newGrid);
+    //   }
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        if (Math.random() < 0.3) {
+          if (newGrid[i][j].type !== "empty") continue;
+          newGrid[i][j].type = "wall";
+        }
+      }
+    }
+    setGrid(newGrid);
+  };
+
   return (
     <>
       <div className="container">
@@ -257,6 +304,7 @@ export default function Container({}: Props) {
           setDiagonalAlowed={setDiagonalAlowed}
           algorithm={algorithm}
           setAlgorithm={setAlgorithm}
+          createMaze={createMaze}
         />
         <Grid
           grid={grid}

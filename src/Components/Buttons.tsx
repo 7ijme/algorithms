@@ -9,6 +9,7 @@ type Props = {
   setAlgorithm: (algorithm: Algorithm) => void;
   startAlgorithm: (algorithm: Algorithm) => void;
   reset: () => void;
+  createMaze: () => void;
 };
 
 export default function Buttons({
@@ -18,6 +19,7 @@ export default function Buttons({
   setDiagonalAlowed,
   algorithm,
   setAlgorithm,
+  createMaze,
 }: Props) {
   const algorithms: Algorithm[] = ["dijkstra", "astar"];
 
@@ -25,6 +27,7 @@ export default function Buttons({
     <>
       <div className="buttons">
         <button onClick={startAlgorithm.bind(null, algorithm)}>Start</button>
+        <button onClick={createMaze.bind(null, algorithm)}>Create maze</button>
         <button onClick={reset}>Clear</button>
         <label htmlFor="Diagonal">Diagonal</label>
         <input
