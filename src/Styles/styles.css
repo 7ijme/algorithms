@@ -11,6 +11,7 @@
   display: flex;
   align-self: stretch;
   align-items: center;
+  margin: 0 15px;
 }
 
 .grid {
@@ -35,6 +36,8 @@
   justify-content: center;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+  margin: 15px;
 }
 
 .box {
@@ -66,9 +69,10 @@
 }
 
 .box.legend-item {
-  min-height: 20px;
+  aspect-ratio: 1 / 1;
+  min-height: 75px;
   max-height: calc(80vh / 10);
-  min-width: 20px;
+  min-width: 75px;
   max-width: calc(80vh / 10);
   display: flex;
   align-items: center;
@@ -78,7 +82,7 @@
   /* overflow: scroll; */
   padding: 5px;
   /* make font smaller if doesnt fit */
-  font-size: clamp(1em, 1.2em, 50px);
+  font-size: 1em;
 }
 
 .legend {
@@ -88,4 +92,6 @@
   gap: 10px;
   align-items: center;
   align-self: stretch;
+  flex-wrap: wrap;
+  /* flex-basis: 50%; */
 }

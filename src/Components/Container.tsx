@@ -10,6 +10,7 @@ export type Algorithm = "dijkstra" | "astar";
 export default function Container({}: Props) {
   const [grid, setGrid] = React.useState<GridType>([]);
   const [diagonalAlowed, setDiagonalAlowed] = React.useState<boolean>(false);
+  const [algorithm, setAlgorithm] = React.useState<Algorithm>("dijkstra");
   const columns = 15;
   const rows = 15;
 
@@ -116,6 +117,7 @@ export default function Container({}: Props) {
   };
 
   const startAlgorithm = (algorithm: Algorithm) => {
+    console.log(algorithm);
     if (algorithm === "dijkstra") {
       dijkstra();
     }
@@ -148,6 +150,8 @@ export default function Container({}: Props) {
           reset={reset}
           diagonalAlowed={diagonalAlowed}
           setDiagonalAlowed={setDiagonalAlowed}
+          algorithm={algorithm}
+          setAlgorithm={setAlgorithm}
         />
         <Grid
           grid={grid}
