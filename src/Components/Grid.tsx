@@ -63,7 +63,8 @@ export default function Grid({ grid, setGrid, columns, rows }: Props) {
                   className={`box ${box.type}`}
                   onMouseDown={(e) => {
                     if (e.buttons == 2) {
-                      box.weight++;
+                      if (box.type !== "start" && box.type !== "end")
+                        box.weight++;
                       setGrid([...grid]);
                       return;
                     }
@@ -73,7 +74,8 @@ export default function Grid({ grid, setGrid, columns, rows }: Props) {
                   onMouseOver={(e) => {
                     if (e.buttons == 1) handleBoxClick(rowIndex, boxIndex);
                     if (e.buttons == 2) {
-                      box.weight++;
+                      if (box.type !== "start" && box.type !== "end")
+                        box.weight++;
                       setGrid([...grid]);
                       return;
                     }
@@ -81,7 +83,7 @@ export default function Grid({ grid, setGrid, columns, rows }: Props) {
                   onContextMenu={(e) => {
                     e.preventDefault();
                   }}>
-                  {box.weight}
+                  {box.type !== "start" && box.type !== "end" ? box.weight : ""}
                 </div>
               );
             });
