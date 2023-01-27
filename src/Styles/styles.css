@@ -1,0 +1,91 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+}
+
+.grid-wrapper {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+}
+
+.grid {
+  margin: 10px auto;
+  display: grid;
+  /* grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr); */
+  /* grid-gap: 10px; */
+  /* grid-auto-flow: dense; */
+  /* aspect-ratio: 1 / 1; */
+  min-height: 200px;
+  /* max-height: 80vh; */
+  min-width: 200px;
+  flex-grow: 1;
+  max-width: 80vh;
+  /* height: clamp(200px, 40vh, fit-content); */
+  /* align-self: stretch; */
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+.box {
+  flex-grow: 1;
+  background-color: black;
+  border: solid 1px #fff;
+
+  aspect-ratio: 1 / 1;
+  min-height: 20px;
+}
+
+.box.wall {
+  background-color: blue;
+}
+.box.start {
+  background-color: green;
+}
+.box.end {
+  background-color: red;
+}
+.box.visited {
+  background-color: purple;
+}
+.box.checking {
+  background-color: brown;
+}
+.box.path {
+  background-color: orange;
+}
+
+.box.legend-item {
+  min-height: 20px;
+  max-height: calc(80vh / 10);
+  min-width: 20px;
+  max-width: calc(80vh / 10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-grow: 1;
+  /* overflow: scroll; */
+  padding: 5px;
+  /* make font smaller if doesnt fit */
+  font-size: clamp(1em, 1.2em, 50px);
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  /* width: fit; */
+  gap: 10px;
+  align-items: center;
+  align-self: stretch;
+}
