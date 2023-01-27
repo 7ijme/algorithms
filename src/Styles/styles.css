@@ -15,6 +15,7 @@
 }
 
 .grid {
+  user-select: none;
   margin: 10px auto;
   display: grid;
   /* grid-template-columns: repeat(3, 1fr);
@@ -47,6 +48,8 @@
 
   aspect-ratio: 1 / 1;
   min-height: 20px;
+
+  transition: background-color 0.2s ease-out;
 }
 
 .box.wall {
