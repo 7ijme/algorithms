@@ -5,6 +5,7 @@
   justify-content: center;
   min-height: 100vh;
   width: 100vw;
+  position: relative;
 }
 
 .grid-wrapper {
@@ -42,6 +43,9 @@
 }
 
 .box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-grow: 1;
   background-color: black;
   border: solid 1px #fff;
@@ -96,5 +100,21 @@
   align-items: center;
   align-self: stretch;
   flex-wrap: wrap;
+  padding-bottom: 100px;
   /* flex-basis: 50%; */
+}
+
+code {
+  padding: 0 5px;
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: 50px;
+  position: absolute;
+  bottom: 25px;
+  text-align: center;
+  /* footer should be at bottom  without margin */
 }

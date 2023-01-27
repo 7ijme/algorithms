@@ -13,6 +13,8 @@ export type Box = {
   id: number;
   x: number;
   y: number;
+  weight: number;
+  checkCount: number;
   type: BoxType;
   cameFrom?: Box;
 };
@@ -56,16 +58,31 @@ export default function Grid({ grid, setGrid, columns, rows }: Props) {
             return row.map((box, boxIndex) => {
               return (
                 <div
+                  style={{ filter: `brightness(${100 - box.weight}%)` }}
                   key={box.id}
                   className={`box ${box.type}`}
                   onMouseDown={(e) => {
-                    if (e.buttons == 1) handleBoxClick(rowIndex, boxIndex);
+                    if (e.buttons == 2) {
+                      box.weight++;
+                      setGrid([...grid]);
+                      return;
+                    }
+                    handleBoxClick(rowIndex, boxIndex);
                   }}
                   onTouchMove={handleBoxClick.bind(null, rowIndex, boxIndex)}
                   onMouseOver={(e) => {
                     if (e.buttons == 1) handleBoxClick(rowIndex, boxIndex);
+                    if (e.buttons == 2) {
+                      box.weight++;
+                      setGrid([...grid]);
+                      return;
+                    }
                   }}
-                />
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                  }}>
+                  {box.weight}
+                </div>
               );
             });
           })}

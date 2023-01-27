@@ -23,6 +23,8 @@ export default function Container({}: Props) {
           id: i * columns + j,
           x: j,
           y: i,
+          weight: 1,
+          checkCount: 0,
           type: "empty",
         });
       }
@@ -87,6 +89,11 @@ export default function Container({}: Props) {
       const newGrid = [...grid];
       editing = [...checkingNow];
       for (let i = 0; i < checkingNow.length; i++) {
+        checkingNow[i].checkCount++;
+        if (checkingNow[i].weight > checkingNow[i].checkCount) {
+          continue;
+        }
+
         const neighbors = getNeighbors(checkingNow[i]);
         for (let j = 0; j < neighbors.length; j++) {
           if (!neighbors[j].cameFrom) neighbors[j].cameFrom = checkingNow[i];
@@ -128,6 +135,8 @@ export default function Container({}: Props) {
       grid.map((l) => {
         return l.map((b) => {
           delete b.cameFrom;
+          b.checkCount = 0;
+          b.weight = 1;
           if (
             b.type === "path" ||
             b.type === "visited" ||
@@ -160,6 +169,18 @@ export default function Container({}: Props) {
           columns={columns}
         />
         <Legend />
+        <footer>
+          <code>
+            Created with Vite + React + TypeScript <br />
+            <a
+              href="https://github.com/7ijme/algorithms-v2"
+              target="_blank">
+              Source
+            </a>
+            {" • "}
+            By Tijme
+          </code>
+        </footer>
       </div>
     </>
   );
