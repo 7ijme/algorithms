@@ -40,8 +40,8 @@ export default function Buttons({
           onChange={(e) => setAlgorithm(e.target.value as Algorithm)}
           id="algorithm"
           value={algorithm}>
-          {algorithms.map((algorithm) => {
-            return <option>{algorithm}</option>;
+          {algorithms.map((algorithm, i) => {
+            return <option key={i}>{algorithm}</option>;
           })}
         </select>
       </div>

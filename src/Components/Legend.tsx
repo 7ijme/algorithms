@@ -18,13 +18,18 @@ export default function Legend({}: Props) {
     <>
       <div className="legend">
         Legend
-        {gridTypes.map((type) => {
+        {gridTypes.map((type, i) => {
           return (
-            <div className={`box ${type} legend-item`}>
+            <div
+              className={`box ${type} legend-item`}
+              key={i}>
               <span>{type}</span>
             </div>
           );
         })}
+        {/* <div className={`box currentPath legend-item`}>
+          <span>current path</span>
+        </div> */}
       </div>
     </>
   );

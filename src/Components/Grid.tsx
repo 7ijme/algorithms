@@ -6,6 +6,7 @@ type Props = {
   setGrid: React.Dispatch<React.SetStateAction<GridType>>;
   rows: number;
   columns: number;
+  currentPath: Box[];
 };
 
 export type GridType = Box[][];
@@ -16,7 +17,7 @@ export type Box = {
   weight: number;
   checkCount: number;
   type: BoxType;
-  cameFrom?: Box;
+  cameFrom: Box | null;
 };
 
 export type BoxType =
@@ -28,7 +29,13 @@ export type BoxType =
   | "visited"
   | "checking";
 
-export default function Grid({ grid, setGrid, columns, rows }: Props) {
+export default function Grid({
+  grid,
+  setGrid,
+  columns,
+  rows,
+  currentPath,
+}: Props) {
   const handleBoxClick = (rowIndex: number, boxIndex: number) => {
     const newGrid = [...grid];
     switch (newGrid[rowIndex][boxIndex].type) {
@@ -60,7 +67,9 @@ export default function Grid({ grid, setGrid, columns, rows }: Props) {
                 <div
                   style={{ filter: `brightness(${100 - box.weight}%)` }}
                   key={box.id}
-                  className={`box ${box.type}`}
+                  className={`box ${box.type} ${
+                    currentPath.includes(box) ? "currentPath" : ""
+                  }`}
                   onMouseDown={(e) => {
                     if (e.buttons == 2) {
                       if (box.type !== "start" && box.type !== "end")

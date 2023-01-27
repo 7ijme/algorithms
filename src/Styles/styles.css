@@ -71,6 +71,9 @@
 .box.checking {
   background-color: brown;
 }
+.box.currentPath {
+  background-color: darkblue;
+}
 .box.path {
   background-color: orange;
 }
