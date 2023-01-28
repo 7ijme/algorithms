@@ -121,3 +121,16 @@ footer {
   text-align: center;
   /* footer should be at bottom  without margin */
 }
+
+@supports (-webkit-touch-callout: none) {
+  /* CSS specific to iOS devices */ 
+  
+  
+  footer {
+    bottom:75px
+    }
+    
+    .legend {
+      padding-bottom: 150px;
+      }
+}
