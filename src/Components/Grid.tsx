@@ -72,8 +72,7 @@ export default function Grid({
                   }`}
                   onMouseDown={(e) => {
                     if (e.buttons == 2) {
-                      if (box.type !== "start" && box.type !== "end")
-                        box.weight++;
+                      if (box.type === "empty") box.weight++;
                       setGrid([...grid]);
                       return;
                     }
@@ -83,8 +82,7 @@ export default function Grid({
                   onMouseOver={(e) => {
                     if (e.buttons == 1) handleBoxClick(rowIndex, boxIndex);
                     if (e.buttons == 2) {
-                      if (box.type !== "start" && box.type !== "end")
-                        box.weight++;
+                      if (box.type === "empty") box.weight++;
                       setGrid([...grid]);
                       return;
                     }
