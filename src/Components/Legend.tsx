@@ -27,9 +27,9 @@ export default function Legend({}: Props) {
             </div>
           );
         })}
-        {/* <div className={`box currentPath legend-item`}>
+        <div className={`box currentPath legend-item`}>
           <span>current path</span>
-        </div> */}
+        </div>
       </div>
     </>
   );

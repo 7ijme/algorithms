@@ -10,6 +10,7 @@ type Props = {
   startAlgorithm: (algorithm: Algorithm) => void;
   reset: () => void;
   createMaze: () => void;
+  addWeights: () => void;
 };
 
 export default function Buttons({
@@ -20,6 +21,7 @@ export default function Buttons({
   algorithm,
   setAlgorithm,
   createMaze,
+  addWeights,
 }: Props) {
   const algorithms: Algorithm[] = ["dijkstra", "astar"];
 
@@ -27,7 +29,8 @@ export default function Buttons({
     <>
       <div className="buttons">
         <button onClick={startAlgorithm.bind(null, algorithm)}>Start</button>
-        <button onClick={createMaze.bind(null, algorithm)}>Create maze</button>
+        <button onClick={createMaze}>Create maze</button>
+        <button onClick={addWeights}>Add weights</button>
         <button onClick={reset}>Clear</button>
         <label htmlFor="Diagonal">Diagonal</label>
         <input
