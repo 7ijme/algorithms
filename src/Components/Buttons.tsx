@@ -5,6 +5,8 @@ import { GridType } from "./Grid";
 type Props = {
   diagonalAlowed: boolean;
   setDiagonalAlowed: (diagonalAlowed: boolean) => void;
+  checkAfterFindingEnd: boolean;
+  setCheckAfterFindingEnd: (checkAfterFindingEnd: boolean) => void;
   algorithm: Algorithm;
   setAlgorithm: (algorithm: Algorithm) => void;
   startAlgorithm: (algorithm: Algorithm) => void;
@@ -22,6 +24,8 @@ export default function Buttons({
   setAlgorithm,
   createMaze,
   addWeights,
+  checkAfterFindingEnd,
+  setCheckAfterFindingEnd,
 }: Props) {
   const algorithms: Algorithm[] = ["dijkstra", "astar"];
 
@@ -32,14 +36,26 @@ export default function Buttons({
         <button onClick={createMaze}>Create maze</button>
         <button onClick={addWeights}>Add weights</button>
         <button onClick={reset}>Clear</button>
-        <label htmlFor="Diagonal">Diagonal</label>
-        <input
-          type="checkbox"
-          name="Diagonal"
-          id="diagonal"
-          checked={diagonalAlowed}
-          onChange={(e) => setDiagonalAlowed(e.target.checked)}
-        />
+        <span className="check-box-span">
+          <label htmlFor="diagonal">Diagonal</label>
+          <input
+            type="checkbox"
+            name="Diagonal"
+            id="diagonal"
+            checked={diagonalAlowed}
+            onChange={(e) => setDiagonalAlowed(e.target.checked)}
+          />
+        </span>
+        <span className="check-box-span">
+          <label htmlFor="checkAfterFindingEnd">Stop after finding end</label>
+          <input
+            type="checkbox"
+            name="checkAfterFindingEnd"
+            id="checkAfterFindingEnd"
+            checked={!checkAfterFindingEnd}
+            onChange={(e) => setCheckAfterFindingEnd(!e.target.checked)}
+          />
+        </span>
 
         <label htmlFor="algorithm">Algorithm</label>
         <select

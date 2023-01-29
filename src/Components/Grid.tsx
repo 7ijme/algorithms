@@ -18,6 +18,7 @@ export type Box = {
   checkCount: number;
   type: BoxType;
   cameFrom: Box | null;
+  checkedBy: number[];
 };
 
 export type BoxType =

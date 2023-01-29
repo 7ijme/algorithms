@@ -10,6 +10,8 @@ export type Algorithm = "dijkstra" | "astar";
 export default function Container({}: Props) {
   const [grid, setGrid] = React.useState<GridType>([]);
   const [diagonalAlowed, setDiagonalAlowed] = React.useState<boolean>(false);
+  const [checkAfterFindingEnd, setCheckAfterFindingEnd] =
+    React.useState<boolean>(false);
   const [algorithm, setAlgorithm] = React.useState<Algorithm>("dijkstra");
   const [currentPath, setCurrentPath] = React.useState<Box[]>([]);
   const columns = 15;
@@ -28,6 +30,7 @@ export default function Container({}: Props) {
           checkCount: 0,
           type: "empty",
           cameFrom: null,
+          checkedBy: [],
         });
       }
     }
@@ -72,7 +75,7 @@ export default function Container({}: Props) {
           neighbor.cameFrom !== null &&
           neighbor.cameFrom.id !== box.id &&
           neighbor.cameFrom.type !== "start" &&
-          neighbor.checkCount <= (diagonalAlowed ? 8 : 4) &&
+          !neighbor.checkedBy.includes(neighbor.cameFrom.id) &&
           isCloserToStart(neighbor.cameFrom, box)) // check if is getting closer to start
       // check if is getting closer to start
       // neighbor.checkCount > box.checkCount + 2)
@@ -82,7 +85,7 @@ export default function Container({}: Props) {
   const createPath = (from: Box): Box[] => {
     let current: Box = from;
     let list = [];
-    if (!current.cameFrom) return [];
+    if (!current?.cameFrom) return [];
     while (current.cameFrom) {
       if (current.type !== "start" && current.type !== "end")
         list.push(current);
@@ -159,7 +162,7 @@ export default function Container({}: Props) {
     let weight = 0;
     boxes.forEach((box) => {
       if (isDiagonal(box, box.cameFrom!)) {
-        weight += box.weight * Math.sqrt(2);
+        weight += Math.sqrt(2) * 0.5 + (box.weight + box.cameFrom!.weight);
       } else weight += box.weight;
     });
     return weight;
@@ -175,7 +178,7 @@ export default function Container({}: Props) {
 
     let gotThere = false;
 
-    neighborsOfCheckingNow = [...checkingNow];
+    // neighborsOfCheckingNow = [...checkingNow];
     const interval = setInterval(() => {
       const newGrid = [...grid];
 
@@ -194,6 +197,8 @@ export default function Container({}: Props) {
 
       const neighbors = getNeighbors(checkingNow[i]);
       for (let j = 0; j < neighbors.length; j++) {
+        neighbors[j].checkedBy.push(checkingNow[i].id);
+
         const weight = getWeight(
           createPath({ ...neighbors[j], cameFrom: checkingNow[i] })
         );
@@ -221,11 +226,13 @@ export default function Container({}: Props) {
           // alert("got there");
           gotThere = true;
         } else {
-          if (!gotThere) neighbors[j].type = "checking";
+          if (!gotThere || checkAfterFindingEnd) neighbors[j].type = "checking";
         }
       }
-      if (!gotThere) neighborsOfCheckingNow.push(...neighbors);
-      if (checkingNow[i].type !== "start") checkingNow[i].type = "visited";
+      if (!gotThere || checkAfterFindingEnd)
+        neighborsOfCheckingNow.push(...neighbors);
+      if (checkingNow[i].type !== "start" && checkingNow[i].type !== "end")
+        checkingNow[i].type = "visited";
 
       checkingNow.shift();
 
@@ -237,20 +244,19 @@ export default function Container({}: Props) {
           ) === index
         );
       });
-      if (checkingNow.length < 1 && gotThere === false) {
+      if (checkingNow.length < 1 && (!gotThere || checkAfterFindingEnd)) {
         checkingNow = neighborsOfCheckingNow;
         neighborsOfCheckingNow = [];
       }
       // checkingNow = modifiedCheckingNow;
       // modifiedCheckingNow = [];
 
-      const CHECK_AFTER_FINDING_END = false as const;
-      if (gotThere && CHECK_AFTER_FINDING_END) {
+      if (gotThere && !checkAfterFindingEnd) {
         checkingNow = [...checkingNow, ...neighborsOfCheckingNow];
         neighborsOfCheckingNow = [];
       }
 
-      if (gotThere && checkingNow.length < 1) {
+      if (gotThere && checkingNow.length < 1 && !checkAfterFindingEnd) {
         const end = grid.flat().find((box) => box.type === "end");
         if (!end) return;
         setCurrentPath(createPath(end));
@@ -258,9 +264,13 @@ export default function Container({}: Props) {
         clearInterval(interval);
       }
 
-      if (grid.flat().every((box) => box.type !== "checking") && !gotThere) {
-        clearInterval(interval);
+      if (
+        grid.flat().every((box) => box.type !== "checking") &&
+        (!gotThere || checkAfterFindingEnd)
+      ) {
+        setCurrentPath(createPath(end));
         animatePath(createPath(end));
+        clearInterval(interval);
       }
       setGrid(newGrid);
     }, 0);
@@ -365,6 +375,8 @@ export default function Container({}: Props) {
           setAlgorithm={setAlgorithm}
           createMaze={createMaze}
           addWeights={addWeights}
+          checkAfterFindingEnd={checkAfterFindingEnd}
+          setCheckAfterFindingEnd={setCheckAfterFindingEnd}
         />
         <Grid
           grid={grid}
