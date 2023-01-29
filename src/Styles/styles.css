@@ -69,8 +69,11 @@
 
   aspect-ratio: 1 / 1;
   min-height: 20px;
+  transition: background-color 0.2s linear;
+}
 
-  /* transition: background-color 0.2s ease-out; */
+.box:is(.wall, .empty) {
+  cursor: pointer;
 }
 
 .box.wall {
@@ -89,10 +92,11 @@
   background-color: brown;
 }
 .box.currentPath {
-  background-color: darkblue;
+  background-image: linear-gradient(to right, darkblue 100%, transparent);
 }
 .box.currentPath.path {
   background-color: transparent;
+  background-image: none;
 }
 .box.path {
   background-color: transparent;
