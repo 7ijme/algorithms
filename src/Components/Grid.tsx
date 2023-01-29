@@ -57,7 +57,9 @@ export default function Grid({
     <>
       <div className="grid-wrapper">
         <div
-          className="grid"
+          className={`grid ${
+            grid.flat().some((box) => box.type === "path") ? "animate" : ""
+          }`}
           style={{
             gridTemplateColumns: `repeat(${columns},1fr)`,
             gridTemplateRows: `repeat(${rows},1fr)`,
@@ -69,7 +71,13 @@ export default function Grid({
                   style={{ filter: `brightness(${100 - box.weight}%)` }}
                   key={box.id}
                   className={`box ${box.type} ${
-                    currentPath.includes(box) ? "currentPath" : ""
+                    currentPath
+                      .filter(
+                        (box) => box.type !== "start" && box.type !== "end"
+                      )
+                      .includes(box)
+                      ? "currentPath"
+                      : ""
                   }`}
                   onMouseDown={(e) => {
                     if (e.buttons == 2) {

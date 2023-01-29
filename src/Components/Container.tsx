@@ -70,13 +70,11 @@ export default function Container({}: Props) {
         neighbor.type === "end" || // we only want to check the neighbors that are empty or the end
         (neighbor.type === "checking" &&
           neighbor.cameFrom !== null &&
-          neighbor.cameFrom.id !== box.id) ||
+          !neighbor.checkedBy.includes(box.id)) ||
         (neighbor.type === "visited" &&
           neighbor.cameFrom !== null &&
-          neighbor.cameFrom.id !== box.id &&
           neighbor.cameFrom.type !== "start" &&
-          !neighbor.checkedBy.includes(neighbor.cameFrom.id) &&
-          isCloserToStart(neighbor.cameFrom, box)) // check if is getting closer to start
+          !neighbor.checkedBy.includes(box.id)) // check if is getting closer to start
       // check if is getting closer to start
       // neighbor.checkCount > box.checkCount + 2)
     );
@@ -87,8 +85,8 @@ export default function Container({}: Props) {
     let list = [];
     if (!current?.cameFrom) return [];
     while (current.cameFrom) {
-      if (current.type !== "start" && current.type !== "end")
-        list.push(current);
+      // if (current.type !== "start" && current.type !== "end")
+      list.push(current);
       current = current.cameFrom;
     }
 
@@ -98,12 +96,14 @@ export default function Container({}: Props) {
   const animatePath = (path: Box[]) => {
     const newGrid = [...grid];
 
-    path.forEach((box, i) => {
-      setTimeout(() => {
+    path
+      .filter((b) => b.type !== "start" && b.type !== "end")
+      .forEach((box, i) => {
+        // setTimeout(() => {
         newGrid[box.y][box.x].type = "path";
-        setGrid([...newGrid]);
-      }, i * 100);
-    });
+        // }, i * 100);
+      });
+    setGrid([...newGrid]);
   };
 
   const isDiagonal = (box1: Box, box2: Box) => {
@@ -161,9 +161,11 @@ export default function Container({}: Props) {
   const getWeight = (boxes: Box[]): number => {
     let weight = 0;
     boxes.forEach((box) => {
+      console.log(box.cameFrom!.weight);
+
       if (isDiagonal(box, box.cameFrom!)) {
-        weight += Math.sqrt(2) * 0.5 + (box.weight + box.cameFrom!.weight);
-      } else weight += box.weight;
+        weight += Math.SQRT2 * 0.5 * (box.weight + box.cameFrom!.weight);
+      } else weight += 0.5 * (box.weight + box.cameFrom!.weight);
     });
     return weight;
   };
@@ -199,29 +201,18 @@ export default function Container({}: Props) {
       for (let j = 0; j < neighbors.length; j++) {
         neighbors[j].checkedBy.push(checkingNow[i].id);
 
-        const weight = getWeight(
+        const newWeight = getWeight(
           createPath({ ...neighbors[j], cameFrom: checkingNow[i] })
         );
+        const oldWeight = getWeight(createPath(neighbors[j])) || Infinity;
 
-        if (
-          neighbors[j].type === "visited" ||
-          neighbors[j].type === "checking"
-        ) {
-          if (weight < getWeight(createPath(neighbors[j]))) {
-            neighbors[j].cameFrom = checkingNow[i];
-          }
-          continue;
-        }
-
-        // if (8 > neighbors[j].y && neighbors[j].y > 5)
-        //
-        if (getWeight(newPath) > weight) continue;
-
-        if (
-          !neighbors[j].cameFrom ||
-          getWeight(newPath) < getWeight(createPath(neighbors[j]))
-        )
+        if (newWeight < oldWeight) {
           neighbors[j].cameFrom = checkingNow[i];
+        } else continue;
+
+        if (neighbors[j].type === "visited" || neighbors[j].type === "checking")
+          continue;
+
         if (neighbors[j].type === "end") {
           // alert("got there");
           gotThere = true;
@@ -271,6 +262,7 @@ export default function Container({}: Props) {
         setCurrentPath(createPath(end));
         animatePath(createPath(end));
         clearInterval(interval);
+        console.log(getWeight(createPath(end)));
       }
       setGrid(newGrid);
     }, 0);
@@ -289,6 +281,7 @@ export default function Container({}: Props) {
           b.cameFrom = null;
           b.checkCount = 0;
           b.weight = 1;
+          b.checkedBy = [];
           if (
             b.type === "path" ||
             b.type === "visited" ||

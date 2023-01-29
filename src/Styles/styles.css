@@ -31,6 +31,23 @@
   max-width: 80vh;
   /* height: clamp(200px, 40vh, fit-content); */
   /* align-self: stretch; */
+  background-color: purple;
+}
+
+@keyframes endAnimation {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.grid.animate {
+  background-image: linear-gradient(to right, orange 50%, transparent 50%);
+  background-position: 0% 50%;
+  background-size: 200% 200%;
+  animation: 2s ease-out endAnimation;
 }
 
 .buttons {
@@ -53,7 +70,7 @@
   aspect-ratio: 1 / 1;
   min-height: 20px;
 
-  transition: background-color 0.2s ease-out;
+  /* transition: background-color 0.2s ease-out; */
 }
 
 .box.wall {
@@ -74,8 +91,11 @@
 .box.currentPath {
   background-color: darkblue;
 }
+.box.currentPath.path {
+  background-color: transparent;
+}
 .box.path {
-  background-color: orange;
+  background-color: transparent;
 }
 
 .box.legend-item {
@@ -107,6 +127,10 @@
   /* flex-basis: 50%; */
 }
 
+.legend .path {
+  background-color: orange;
+}
+
 code {
   padding: 0 5px;
 }
@@ -131,6 +155,10 @@ span.check-box-span {
 
   /* border to indicate the label and input belond to each other, use a color that isnt hard on the eyes for a dark theme */
   border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+span.check-box-span label {
+  user-select: none;
 }
 
 @supports (-webkit-touch-callout: none) {
