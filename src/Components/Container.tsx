@@ -244,7 +244,7 @@ export default function Container({}: Props) {
       // checkingNow = modifiedCheckingNow;
       // modifiedCheckingNow = [];
 
-      const CHECK_AFTER_FINDING_END = false as const;
+      const CHECK_AFTER_FINDING_END = true as const;
       if (gotThere && CHECK_AFTER_FINDING_END) {
         checkingNow = [...checkingNow, ...neighborsOfCheckingNow];
         neighborsOfCheckingNow = [];
