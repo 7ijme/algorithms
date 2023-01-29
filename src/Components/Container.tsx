@@ -161,8 +161,6 @@ export default function Container({}: Props) {
   const getWeight = (boxes: Box[]): number => {
     let weight = 0;
     boxes.forEach((box) => {
-      console.log(box.cameFrom!.weight);
-
       if (isDiagonal(box, box.cameFrom!)) {
         weight += Math.SQRT2 * 0.5 * (box.weight + box.cameFrom!.weight);
       } else weight += 0.5 * (box.weight + box.cameFrom!.weight);

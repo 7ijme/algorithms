@@ -49,7 +49,7 @@ export default function Grid({
       default:
         break;
     }
-    console.log(newGrid);
+
     setGrid(newGrid);
   };
 
