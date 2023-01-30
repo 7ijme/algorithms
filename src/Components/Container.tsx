@@ -1,23 +1,30 @@
 import React from "react";
-import Grid, { Box, GridType } from "./Grid";
+import Grid, { Box, GridType, BoxType } from "./Grid";
 import "../Styles/styles.css";
 import Legend from "./Legend";
 import Buttons from "./Buttons";
 
 type Props = {};
-export type Algorithm = "dijkstra" | "astar";
+
+export enum AlgorithmEnum {
+  dijkstra = "Dijkstra",
+  astar = "A*",
+}
 
 export default function Container({}: Props) {
   const [grid, setGrid] = React.useState<GridType>([]);
+  const [finished, setFinished] = React.useState<boolean>(false);
   const [diagonalAlowed, setDiagonalAlowed] = React.useState<boolean>(false);
   const [checkAfterFindingEnd, setCheckAfterFindingEnd] =
     React.useState<boolean>(false);
-  const [algorithm, setAlgorithm] = React.useState<Algorithm>("dijkstra");
+  const [algorithm, setAlgorithm] = React.useState<AlgorithmEnum>(
+    AlgorithmEnum.dijkstra
+  );
   const [currentPath, setCurrentPath] = React.useState<Box[]>([]);
   const columns = 15;
   const rows = 15;
 
-  React.useEffect(() => {
+  const reset = () => {
     const newGrid: GridType = [];
     for (let i = 0; i < rows; i++) {
       newGrid.push([]);
@@ -28,21 +35,25 @@ export default function Container({}: Props) {
           y: i,
           weight: 1,
           checkCount: 0,
-          type: "empty",
+          type: BoxType.empty,
           cameFrom: null,
           checkedBy: [],
         });
       }
     }
 
-    newGrid[7][2].type = "start";
-    newGrid[7][12].type = "end";
+    newGrid[7][2].type = BoxType.start;
+    newGrid[7][12].type = BoxType.end;
 
     setGrid(newGrid);
-  }, []);
+    setFinished(false);
+    setCurrentPath([]);
+  };
+
+  React.useEffect(reset, []);
 
   const isCloserToStart = (box1: Box, box2: Box) => {
-    const start = grid.flat().find((box) => box.type === "start");
+    const start = grid.flat().find((box) => box.type === BoxType.start);
     if (!start) return false;
     const dist1 = Math.abs(start.y - box1.y) + Math.abs(start.x - box1.x);
     const dist2 = Math.abs(start.y - box2.y) + Math.abs(start.x - box2.x);
@@ -66,14 +77,14 @@ export default function Container({}: Props) {
 
     return neighbors.filter(
       (neighbor) =>
-        neighbor.type === "empty" ||
-        neighbor.type === "end" || // we only want to check the neighbors that are empty or the end
-        (neighbor.type === "checking" &&
+        neighbor.type === BoxType.empty ||
+        neighbor.type === BoxType.end || // we only want to check the neighbors that are empty or the end
+        (neighbor.type === BoxType.checking &&
           neighbor.cameFrom !== null &&
           !neighbor.checkedBy.includes(box.id)) ||
-        (neighbor.type === "visited" &&
+        (neighbor.type === BoxType.visited &&
           neighbor.cameFrom !== null &&
-          neighbor.cameFrom.type !== "start" &&
+          neighbor.cameFrom.type !== BoxType.start &&
           !neighbor.checkedBy.includes(box.id)) // check if is getting closer to start
       // check if is getting closer to start
       // neighbor.checkCount > box.checkCount + 2)
@@ -85,7 +96,7 @@ export default function Container({}: Props) {
     let list = [];
     if (!current?.cameFrom) return [];
     while (current.cameFrom) {
-      // if (current.type !== "start" && current.type !== "end")
+      // if (current.type !== BoxType.start && current.type !== BoxType.end)
       list.push(current);
       current = current.cameFrom;
     }
@@ -97,10 +108,10 @@ export default function Container({}: Props) {
     const newGrid = [...grid];
 
     path
-      .filter((b) => b.type !== "start" && b.type !== "end")
+      .filter((b) => b.type !== BoxType.start && b.type !== BoxType.end)
       .forEach((box, i) => {
         // setTimeout(() => {
-        newGrid[box.y][box.x].type = "path";
+        newGrid[box.y][box.x].type = BoxType.path;
         // }, i * 100);
       });
     setGrid([...newGrid]);
@@ -111,8 +122,8 @@ export default function Container({}: Props) {
   };
 
   // const dijkstra = () => {
-  //   const start = grid.flat().find((box) => box.type === "start");
-  //   const end = grid.flat().find((box) => box.type === "end");
+  //   const start = grid.flat().find((box) => box.type === BoxType.start);
+  //   const end = grid.flat().find((box) => box.type === BoxType.end);
   //   if (!start || !end) return;
 
   //   let checkingNow = [start]; // this is the list of boxes we are currently checking/
@@ -132,15 +143,15 @@ export default function Container({}: Props) {
   //       const neighbors = getNeighbors(checkingNow[i]);
   //       for (let j = 0; j < neighbors.length; j++) {
   //         if (!neighbors[j].cameFrom) neighbors[j].cameFrom = checkingNow[i];
-  //         if (neighbors[j].type === "end") {
+  //         if (neighbors[j].type === BoxType.end) {
   //           // alert("got there");
   //           gotThere = true;
   //         } else {
-  //           neighbors[j].type = "checking";
+  //           neighbors[j].type = BoxType.checking;
   //         }
   //       }
   //       editing.push(...neighbors);
-  //       if (checkingNow[i].type !== "start") checkingNow[i].type = "visited";
+  //       if (checkingNow[i].type !== BoxType.start) checkingNow[i].type = BoxType.visited;
   //     }
 
   //     checkingNow = editing;
@@ -152,7 +163,7 @@ export default function Container({}: Props) {
   //       clearInterval(interval);
   //     }
 
-  //     if (grid.flat().every((box) => box.type !== "checking")) {
+  //     if (grid.flat().every((box) => box.type !== BoxType.checking)) {
   //       clearInterval(interval);
   //     }
   //   }, 100);
@@ -169,8 +180,8 @@ export default function Container({}: Props) {
   };
 
   const dijkstra = () => {
-    const start = grid.flat().find((box) => box.type === "start");
-    const end = grid.flat().find((box) => box.type === "end");
+    const start = grid.flat().find((box) => box.type === BoxType.start);
+    const end = grid.flat().find((box) => box.type === BoxType.end);
     if (!start || !end) return;
 
     let checkingNow = [start]; // this is the list of boxes we are currently checking
@@ -180,135 +191,305 @@ export default function Container({}: Props) {
 
     // neighborsOfCheckingNow = [...checkingNow];
     const interval = setInterval(() => {
-      const newGrid = [...grid];
+      setGrid((oldGrid) => {
+        const newGrid = [...oldGrid];
 
-      let i = 0;
-      const newPath = createPath(checkingNow[i]);
-      setCurrentPath(newPath);
+        let i = 0;
 
-      checkingNow[i].checkCount++;
-      //
-      // if (checkingNow[i].weight > checkingNow[i].checkCount) {
-      //   // modifiedCheckingNow.shift();
-      //   checkingNow = modifiedCheckingNow;
-      //   modifiedCheckingNow = [];
-      //   return;
-      // }
-
-      const neighbors = getNeighbors(checkingNow[i]);
-      for (let j = 0; j < neighbors.length; j++) {
-        neighbors[j].checkedBy.push(checkingNow[i].id);
-
-        const newWeight = getWeight(
-          createPath({ ...neighbors[j], cameFrom: checkingNow[i] })
-        );
-        const oldWeight = getWeight(createPath(neighbors[j])) || Infinity;
-
-        if (newWeight < oldWeight) {
-          neighbors[j].cameFrom = checkingNow[i];
-        } else continue;
-
-        if (neighbors[j].type === "visited" || neighbors[j].type === "checking")
-          continue;
-
-        if (neighbors[j].type === "end") {
-          // alert("got there");
-          gotThere = true;
-        } else {
-          if (!gotThere || checkAfterFindingEnd) neighbors[j].type = "checking";
+        if (checkingNow.length === 0) {
+          clearInterval(interval);
+          return newGrid;
         }
-      }
-      if (!gotThere || checkAfterFindingEnd)
-        neighborsOfCheckingNow.push(...neighbors);
-      if (checkingNow[i].type !== "start" && checkingNow[i].type !== "end")
-        checkingNow[i].type = "visited";
 
-      checkingNow.shift();
+        const newPath = createPath(checkingNow[i]);
+        setCurrentPath(newPath);
 
-      // remove dupes
-      neighborsOfCheckingNow = neighborsOfCheckingNow.filter((box, index) => {
-        return (
-          neighborsOfCheckingNow.findIndex(
-            (box2) => box2.x === box.x && box2.y === box.y
-          ) === index
-        );
+        checkingNow[i].checkCount++;
+        //
+        // if (checkingNow[i].weight > checkingNow[i].checkCount) {
+        //   // modifiedCheckingNow.shift();
+        //   checkingNow = modifiedCheckingNow;
+        //   modifiedCheckingNow = [];
+        //   return;
+        // }
+
+        const neighbors = getNeighbors(checkingNow[i]);
+        for (let j = 0; j < neighbors.length; j++) {
+          neighbors[j].checkedBy.push(checkingNow[i].id);
+
+          const newWeight = getWeight(
+            createPath({ ...neighbors[j], cameFrom: checkingNow[i] })
+          );
+          const oldWeight = getWeight(createPath(neighbors[j])) || Infinity;
+
+          if (newWeight < oldWeight) {
+            neighbors[j].cameFrom = checkingNow[i];
+          } else continue;
+
+          if (
+            neighbors[j].type === BoxType.visited ||
+            neighbors[j].type === BoxType.checking
+          )
+            continue;
+
+          if (neighbors[j].type === BoxType.end) {
+            // alert("got there");
+            gotThere = true;
+          } else {
+            if (!gotThere || checkAfterFindingEnd)
+              neighbors[j].type = BoxType.checking;
+          }
+        }
+        if (!gotThere || checkAfterFindingEnd)
+          neighborsOfCheckingNow.push(...neighbors);
+        if (
+          checkingNow[i].type !== BoxType.start &&
+          checkingNow[i].type !== BoxType.end
+        )
+          checkingNow[i].type = BoxType.visited;
+
+        checkingNow.shift();
+
+        // remove dupes
+        neighborsOfCheckingNow = neighborsOfCheckingNow.filter((box, index) => {
+          return (
+            neighborsOfCheckingNow.findIndex(
+              (box2) => box2.x === box.x && box2.y === box.y
+            ) === index
+          );
+        });
+        if (checkingNow.length < 1 && (!gotThere || checkAfterFindingEnd)) {
+          checkingNow = neighborsOfCheckingNow;
+          neighborsOfCheckingNow = [];
+        }
+        // checkingNow = modifiedCheckingNow;
+        // modifiedCheckingNow = [];
+
+        if (gotThere && !checkAfterFindingEnd) {
+          checkingNow = [...checkingNow, ...neighborsOfCheckingNow];
+          neighborsOfCheckingNow = [];
+        }
+
+        if (gotThere && checkingNow.length < 1 && !checkAfterFindingEnd) {
+          const end = grid.flat().find((box) => box.type === BoxType.end);
+          if (!end) return newGrid;
+          setCurrentPath(createPath(end));
+          animatePath(createPath(end));
+          clearInterval(interval);
+          setFinished(true);
+        }
+
+        if (
+          grid.flat().every((box) => box.type !== BoxType.checking) &&
+          (!gotThere || checkAfterFindingEnd)
+        ) {
+          setCurrentPath(createPath(end));
+          animatePath(createPath(end));
+          clearInterval(interval);
+          setFinished(true);
+        } else if (
+          grid.flat().every((box) => box.type !== BoxType.checking) &&
+          gotThere &&
+          checkAfterFindingEnd
+        ) {
+          setFinished(true);
+          clearInterval(interval);
+          setCurrentPath(createPath(end));
+        }
+        console.log("still running");
+        return newGrid;
       });
-      if (checkingNow.length < 1 && (!gotThere || checkAfterFindingEnd)) {
-        checkingNow = neighborsOfCheckingNow;
-        neighborsOfCheckingNow = [];
-      }
-      // checkingNow = modifiedCheckingNow;
-      // modifiedCheckingNow = [];
-
-      if (gotThere && !checkAfterFindingEnd) {
-        checkingNow = [...checkingNow, ...neighborsOfCheckingNow];
-        neighborsOfCheckingNow = [];
-      }
-
-      if (gotThere && checkingNow.length < 1 && !checkAfterFindingEnd) {
-        const end = grid.flat().find((box) => box.type === "end");
-        if (!end) return;
-        setCurrentPath(createPath(end));
-        animatePath(createPath(end));
-        clearInterval(interval);
-      }
-
-      if (
-        grid.flat().every((box) => box.type !== "checking") &&
-        (!gotThere || checkAfterFindingEnd)
-      ) {
-        setCurrentPath(createPath(end));
-        animatePath(createPath(end));
-        clearInterval(interval);
-        console.log(getWeight(createPath(end)));
-      }
-      setGrid(newGrid);
     }, 0);
   };
 
-  const startAlgorithm = (algorithm: Algorithm) => {
-    if (algorithm === "dijkstra") {
-      dijkstra();
+  const aStarCheck = (box: Box, neighbor: Box, end: Box) => {
+    // check if neighbor is closer to end than box
+    const neighborDistance =
+      Math.abs(end.x - neighbor.x) + Math.abs(end.y - neighbor.y);
+    const boxDistance = Math.abs(end.x - box.x) + Math.abs(end.y - box.y);
+    if (neighborDistance < boxDistance) return true;
+    else return false;
+  };
+
+  const astar = () => {
+    const start = grid.flat().find((box) => box.type === BoxType.start);
+    const end = grid.flat().find((box) => box.type === BoxType.end);
+    if (!start || !end) return;
+
+    let checkingNow = [start]; // this is the list of boxes we are currently checking
+    // let neighborsOfCheckingNow: Box[] = []; // the list we are manipulating and then setting to checkingNow
+
+    let gotThere = false;
+
+    // neighborsOfCheckingNow = [...checkingNow];
+    const interval = setInterval(() => {
+      setGrid((oldGrid) => {
+        const newGrid = [...oldGrid];
+
+        let i = 0;
+
+        if (checkingNow.length === 0) {
+          clearInterval(interval);
+          return newGrid;
+        }
+
+        const newPath = createPath(checkingNow[i]);
+        setCurrentPath(newPath);
+
+        checkingNow[i].checkCount++;
+        //
+        // if (checkingNow[i].weight > checkingNow[i].checkCount) {
+        //   // modifiedCheckingNow.shift();
+        //   checkingNow = modifiedCheckingNow;
+        //   modifiedCheckingNow = [];
+        //   return;
+        // }
+
+        const neighbors = getNeighbors(checkingNow[i]);
+        for (let j = 0; j < neighbors.length; j++) {
+          neighbors[j].checkedBy.push(checkingNow[i].id);
+
+          const newWeight = getWeight(
+            createPath({ ...neighbors[j], cameFrom: checkingNow[i] })
+          );
+          const oldWeight = getWeight(createPath(neighbors[j])) || Infinity;
+
+          if (newWeight < oldWeight) {
+            neighbors[j].cameFrom = checkingNow[i];
+          } else continue;
+
+          if (
+            neighbors[j].type === BoxType.visited ||
+            neighbors[j].type === BoxType.checking
+          )
+            continue;
+
+          if (neighbors[j].type === BoxType.end) {
+            // alert("got there");
+            gotThere = true;
+          } else {
+            if (!gotThere || checkAfterFindingEnd)
+              neighbors[j].type = BoxType.checking;
+          }
+        }
+
+        if (!gotThere || checkAfterFindingEnd) checkingNow.push(...neighbors);
+
+        if (
+          checkingNow[i].type !== BoxType.start &&
+          checkingNow[i].type !== BoxType.end
+        )
+          checkingNow[i].type = BoxType.visited;
+
+        checkingNow.shift();
+
+        // remove dupes
+        checkingNow = checkingNow.filter((box, index) => {
+          return (
+            checkingNow.findIndex(
+              (box2) => box2.x === box.x && box2.y === box.y
+            ) === index
+          );
+        });
+
+        checkingNow.sort((a, b) => {
+          const aDistance = Math.abs(end.x - a.x) + Math.abs(end.y - a.y);
+          const bDistance = Math.abs(end.x - b.x) + Math.abs(end.y - b.y);
+          return aDistance - bDistance;
+        });
+
+        if (gotThere && checkingNow.length < 1 && !checkAfterFindingEnd) {
+          const end = grid.flat().find((box) => box.type === BoxType.end);
+          if (!end) return newGrid;
+          setCurrentPath(createPath(end));
+          animatePath(createPath(end));
+          clearInterval(interval);
+          setFinished(true);
+        }
+
+        if (
+          grid.flat().every((box) => box.type !== BoxType.checking) &&
+          (!gotThere || checkAfterFindingEnd)
+        ) {
+          setCurrentPath(createPath(end));
+          animatePath(createPath(end));
+          clearInterval(interval);
+          setFinished(true);
+        } else if (
+          grid.flat().every((box) => box.type !== BoxType.checking) &&
+          gotThere &&
+          checkAfterFindingEnd
+        ) {
+          setFinished(true);
+          clearInterval(interval);
+          setCurrentPath(createPath(end));
+        }
+        console.log("still running");
+        return newGrid;
+      });
+    }, 0);
+  };
+
+  const startAlgorithm = (algorithm: AlgorithmEnum) => {
+    switch (algorithm) {
+      case AlgorithmEnum.dijkstra:
+        dijkstra();
+        break;
+      case AlgorithmEnum.astar:
+        astar();
+      default:
+        break;
     }
   };
 
-  const reset = () => {
-    setGrid(
-      grid.map((l) => {
-        return l.map((b) => {
-          b.cameFrom = null;
-          b.checkCount = 0;
-          b.weight = 1;
-          b.checkedBy = [];
-          if (
-            b.type === "path" ||
-            b.type === "visited" ||
-            b.type === "wall" ||
-            b.type === "checking"
-          ) {
-            return { ...b, type: "empty" };
-          }
-          return b;
-        });
-      })
-    );
-  };
+  // const reset = () => {
+  //   setFinished(false);
+  //   setGrid((oldGrid) => {
+  //     return [...oldGrid].map((l) => {
+  //       return l.map((b) => {
+  //         b.cameFrom = null;
+  //         b.checkCount = 0;
+  //         b.weight = 1;
+  //         b.checkedBy = [];
+  //         if (
+  //           b.type === BoxType.path ||
+  //           b.type === BoxType.visited ||
+  //           b.type === BoxType.wall ||
+  //           b.type === BoxType.checking
+  //         ) {
+  //           return { ...b, type: BoxType.empty };
+  //         }
+  //         return b;
+  //       });
+  //     });
+  //   });
+  // };
 
   const addWeights = () => {
     // add random weights to boxes
-    const newGrid = [...grid];
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < columns; j++) {
-        if (newGrid[i][j].type === "empty") {
-          newGrid[i][j].weight = Math.ceil(Math.random() * 10);
+    // const newGrid = [...grid];
+    // for (let i = 0; i < rows; i++) {
+    //   for (let j = 0; j < columns; j++) {
+    //     if (newGrid[i][j].type === BoxType.empty) {
+    //       newGrid[i][j].weight = Math.ceil(Math.random() * 10);
+    //     }
+    //   }
+    // }
+    setGrid((old) => {
+      const newGrid = [...old];
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < columns; j++) {
+          if (newGrid[i][j].type === BoxType.empty) {
+            newGrid[i][j].weight = Math.ceil(Math.random() * 10);
+          }
         }
       }
-    }
-    setGrid(newGrid);
+      return newGrid;
+    });
   };
 
   const createMaze = () => {
-    const newGrid = [...grid];
+    // const newGrid = [...grid];
     // for (let i = 0; i < 3; i++) {
 
     //   // create a maze that always has a path from start to end using recursive backtracking
@@ -324,8 +505,8 @@ export default function Container({}: Props) {
     //     const unvisitedNeighbors = neighbors.filter(
     //       (neighbor) =>
     //         !visited.includes(neighbor) &&
-    //         neighbor.type !== "start" &&
-    //         neighbor.type !== "end"
+    //         neighbor.type !== BoxType.start &&
+    //         neighbor.type !== BoxType.end
     //     );
     //     if (unvisitedNeighbors.length > 0) {
     //       const randomNeighbor =
@@ -333,8 +514,8 @@ export default function Container({}: Props) {
     //           Math.floor(Math.random() * unvisitedNeighbors.length)
     //         ];
     //       stack.push(current);
-    //       current.type = "empty";
-    //       randomNeighbor.type = "wall";
+    //       current.type = BoxType.empty;
+    //       randomNeighbor.type = BoxType.wall;
     //       current = randomNeighbor;
     //       visited.push(current);
     //     } else {
@@ -343,15 +524,26 @@ export default function Container({}: Props) {
     //     setGrid(newGrid);
     //   }
 
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < columns; j++) {
-        if (Math.random() < 0.3) {
-          if (newGrid[i][j].type !== "empty") continue;
-          newGrid[i][j].type = "wall";
+    // for (let i = 0; i < rows; i++) {
+    //   for (let j = 0; j < columns; j++) {
+    //     if (Math.random() < 0.3) {
+    //       if (newGrid[i][j].type !== BoxType.empty) continue;
+    //       newGrid[i][j].type = BoxType.wall;
+    //     }
+    //   }
+    // }
+    setGrid((oldGrid) => {
+      const newGrid = [...oldGrid];
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < columns; j++) {
+          if (Math.random() < 0.3) {
+            if (newGrid[i][j].type !== BoxType.empty) continue;
+            newGrid[i][j].type = BoxType.wall;
+          }
         }
       }
-    }
-    setGrid(newGrid);
+      return newGrid;
+    });
   };
 
   return (
@@ -368,6 +560,8 @@ export default function Container({}: Props) {
           addWeights={addWeights}
           checkAfterFindingEnd={checkAfterFindingEnd}
           setCheckAfterFindingEnd={setCheckAfterFindingEnd}
+          finished={finished}
+          setFinished={setFinished}
         />
         <Grid
           grid={grid}

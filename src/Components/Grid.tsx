@@ -1,5 +1,5 @@
 import React from "react";
-import { Algorithm } from "./Container";
+import { AlgorithmEnum } from "./Container";
 
 type Props = {
   grid: GridType;
@@ -21,14 +21,15 @@ export type Box = {
   checkedBy: number[];
 };
 
-export type BoxType =
-  | "wall"
-  | "empty"
-  | "start"
-  | "end"
-  | "path"
-  | "visited"
-  | "checking";
+export enum BoxType {
+  wall = "wall",
+  empty = "empty",
+  start = "start",
+  end = "end",
+  path = "path",
+  visited = "visited",
+  checking = "checking",
+}
 
 export default function Grid({
   grid,
@@ -39,12 +40,13 @@ export default function Grid({
 }: Props) {
   const handleBoxClick = (rowIndex: number, boxIndex: number) => {
     const newGrid = [...grid];
+
     switch (newGrid[rowIndex][boxIndex].type) {
-      case "empty":
-        newGrid[rowIndex][boxIndex].type = "wall";
+      case BoxType.empty:
+        newGrid[rowIndex][boxIndex].type = BoxType.wall;
         break;
-      case "wall":
-        newGrid[rowIndex][boxIndex].type = "empty";
+      case BoxType.wall:
+        newGrid[rowIndex][boxIndex].type = BoxType.empty;
         break;
       default:
         break;
@@ -73,7 +75,8 @@ export default function Grid({
                   className={`box ${box.type} ${
                     currentPath
                       .filter(
-                        (box) => box.type !== "start" && box.type !== "end"
+                        (box) =>
+                          box.type !== BoxType.start && box.type !== BoxType.end
                       )
                       .includes(box)
                       ? "currentPath"
@@ -81,7 +84,7 @@ export default function Grid({
                   }`}
                   onMouseDown={(e) => {
                     if (e.buttons == 2) {
-                      if (box.type === "empty") box.weight++;
+                      if (box.type === BoxType.empty) box.weight++;
                       setGrid([...grid]);
                       return;
                     }
@@ -91,7 +94,7 @@ export default function Grid({
                   onMouseOver={(e) => {
                     if (e.buttons == 1) handleBoxClick(rowIndex, boxIndex);
                     if (e.buttons == 2) {
-                      if (box.type === "empty") box.weight++;
+                      if (box.type === BoxType.empty) box.weight++;
                       setGrid([...grid]);
                       return;
                     }

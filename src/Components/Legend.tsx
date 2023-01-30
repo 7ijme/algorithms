@@ -4,15 +4,7 @@ import { BoxType } from "./Grid";
 type Props = {};
 
 export default function Legend({}: Props) {
-  const gridTypes: BoxType[] = [
-    "wall",
-    "empty",
-    "start",
-    "end",
-    "checking",
-    "visited",
-    "path",
-  ];
+  const gridTypes: BoxType[] = Object.values(BoxType);
 
   return (
     <>
