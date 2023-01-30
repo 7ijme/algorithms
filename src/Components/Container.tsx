@@ -20,7 +20,9 @@ export default function Container({}: Props) {
   const [algorithm, setAlgorithm] = React.useState<AlgorithmEnum>(
     AlgorithmEnum.dijkstra
   );
-  const [currentPath, setCurrentPath] = React.useState<Box[]>([]);
+  const [currentCheckingPath, setCurrentCheckingPath] = React.useState<Box[]>(
+    []
+  );
   const columns = 15;
   const rows = 15;
 
@@ -49,7 +51,7 @@ export default function Container({}: Props) {
       return newGrid;
     });
     setFinished(false);
-    setCurrentPath([]);
+    setCurrentCheckingPath([]);
   };
 
   React.useEffect(resetGrid, []);
@@ -141,24 +143,18 @@ export default function Container({}: Props) {
       setGrid((oldGrid) => {
         const newGrid = [...oldGrid];
 
-        let i = 0;
-
         if (checkingNow.length === 0) {
+          // This only happens when something went wrong
           clearInterval(interval);
           return newGrid;
         }
 
+        let i = 0;
+
         const newPath = createPathFromBox(checkingNow[i]);
-        setCurrentPath(newPath);
+        setCurrentCheckingPath(newPath);
 
         checkingNow[i].checkCount++;
-        //
-        // if (checkingNow[i].weight > checkingNow[i].checkCount) {
-        //   // modifiedCheckingNow.shift();
-        //   checkingNow = modifiedCheckingNow;
-        //   modifiedCheckingNow = [];
-        //   return;
-        // }
 
         const neighbors = getNeighborsOfBox(checkingNow[i]);
         for (let j = 0; j < neighbors.length; j++) {
@@ -174,6 +170,7 @@ export default function Container({}: Props) {
             neighbors[j].cameFrom = checkingNow[i];
           } else continue;
 
+          // We don't want to set the type to checking again
           if (
             neighbors[j].type === BoxType.visited ||
             neighbors[j].type === BoxType.checking
@@ -181,15 +178,17 @@ export default function Container({}: Props) {
             continue;
 
           if (neighbors[j].type === BoxType.end) {
-            // alert("got there");
             gotThere = true;
-          } else {
-            if (!gotThere || checkAfterFindingEnd)
-              neighbors[j].type = BoxType.checking;
+            continue;
+          }
+
+          if (!gotThere || checkAfterFindingEnd) {
+            neighbors[j].type = BoxType.checking;
+            neighborsOfCheckingNow.push(neighbors[j]);
           }
         }
-        if (!gotThere || checkAfterFindingEnd)
-          neighborsOfCheckingNow.push(...neighbors);
+
+        // We set the type to visited after we check the neighbors
         if (
           checkingNow[i].type !== BoxType.start &&
           checkingNow[i].type !== BoxType.end
@@ -198,7 +197,7 @@ export default function Container({}: Props) {
 
         checkingNow.shift();
 
-        // remove dupes
+        // Remove duplicates
         neighborsOfCheckingNow = neighborsOfCheckingNow.filter((box, index) => {
           return (
             neighborsOfCheckingNow.findIndex(
@@ -206,43 +205,46 @@ export default function Container({}: Props) {
             ) === index
           );
         });
+
+        // If there are no boxes left to check, and we haven't found the end, we set the checkingNow to the neighbors of the checkingNow
         if (checkingNow.length < 1 && (!gotThere || checkAfterFindingEnd)) {
           checkingNow = neighborsOfCheckingNow;
           neighborsOfCheckingNow = [];
         }
-        // checkingNow = modifiedCheckingNow;
-        // modifiedCheckingNow = [];
 
-        if (gotThere && !checkAfterFindingEnd) {
+        // If we found the end, we set the checkingNow to the neighbors of the checkingNow to check the last boxes
+        else if (gotThere && !checkAfterFindingEnd) {
           checkingNow = [...checkingNow, ...neighborsOfCheckingNow];
           neighborsOfCheckingNow = [];
         }
 
+        // If we found the end and don't want to check after finding the end, we stop the algorithm and animate the path
         if (gotThere && checkingNow.length < 1 && !checkAfterFindingEnd) {
           const end = grid.flat().find((box) => box.type === BoxType.end);
           if (!end) return newGrid;
-          setCurrentPath(createPathFromBox(end));
+          setCurrentCheckingPath(createPathFromBox(end));
           animatePath(createPathFromBox(end));
           clearInterval(interval);
           setFinished(true);
         }
-
-        if (
+        // If we didn't find the end, but there are no boxes left to check, we stop the algorithm
+        else if (
           grid.flat().every((box) => box.type !== BoxType.checking) &&
           (!gotThere || checkAfterFindingEnd)
         ) {
-          setCurrentPath(createPathFromBox(end));
-          animatePath(createPathFromBox(end));
+          setCurrentCheckingPath(createPathFromBox(end));
           clearInterval(interval);
           setFinished(true);
-        } else if (
+        }
+        // If we found the end, and there are no boxes left to check, we stop the algorithm
+        else if (
           grid.flat().every((box) => box.type !== BoxType.checking) &&
           gotThere &&
           checkAfterFindingEnd
         ) {
           setFinished(true);
           clearInterval(interval);
-          setCurrentPath(createPathFromBox(end));
+          setCurrentCheckingPath(createPathFromBox(end));
         }
         return newGrid;
       });
@@ -254,12 +256,10 @@ export default function Container({}: Props) {
     const end = grid.flat().find((box) => box.type === BoxType.end);
     if (!start || !end) return;
 
-    let checkingNow = [start]; // this is the list of boxes we are currently checking
-    // let neighborsOfCheckingNow: Box[] = []; // the list we are manipulating and then setting to checkingNow
+    let checkingNow = [start];
 
-    let gotThere = false;
+    let foundTheEnd = false;
 
-    // neighborsOfCheckingNow = [...checkingNow];
     const interval = setInterval(() => {
       setGrid((oldGrid) => {
         const newGrid = [...oldGrid];
@@ -272,16 +272,9 @@ export default function Container({}: Props) {
         }
 
         const newPath = createPathFromBox(checkingNow[i]);
-        setCurrentPath(newPath);
+        setCurrentCheckingPath(newPath);
 
         checkingNow[i].checkCount++;
-        //
-        // if (checkingNow[i].weight > checkingNow[i].checkCount) {
-        //   // modifiedCheckingNow.shift();
-        //   checkingNow = modifiedCheckingNow;
-        //   modifiedCheckingNow = [];
-        //   return;
-        // }
 
         const neighbors = getNeighborsOfBox(checkingNow[i]);
         for (let j = 0; j < neighbors.length; j++) {
@@ -304,16 +297,17 @@ export default function Container({}: Props) {
             continue;
 
           if (neighbors[j].type === BoxType.end) {
-            // alert("got there");
-            gotThere = true;
-          } else {
-            if (!gotThere || checkAfterFindingEnd)
-              neighbors[j].type = BoxType.checking;
+            foundTheEnd = true;
+            continue;
+          }
+
+          if (!foundTheEnd || checkAfterFindingEnd) {
+            neighbors[j].type = BoxType.checking;
+            checkingNow.push(neighbors[j]);
           }
         }
 
-        if (!gotThere || checkAfterFindingEnd) checkingNow.push(...neighbors);
-
+        // We set the box to visited after we check the neighbors
         if (
           checkingNow[i].type !== BoxType.start &&
           checkingNow[i].type !== BoxType.end
@@ -322,7 +316,7 @@ export default function Container({}: Props) {
 
         checkingNow.shift();
 
-        // remove dupes
+        // Remove duplicates
         checkingNow = checkingNow.filter((box, index) => {
           return (
             checkingNow.findIndex(
@@ -331,37 +325,41 @@ export default function Container({}: Props) {
           );
         });
 
+        // The magic of A* is here
         checkingNow.sort((a, b) => {
           const aDistance = Math.abs(end.x - a.x) + Math.abs(end.y - a.y);
           const bDistance = Math.abs(end.x - b.x) + Math.abs(end.y - b.y);
           return aDistance - bDistance;
         });
 
-        if (gotThere && !checkAfterFindingEnd) {
+        // If we found the end, and don't want to check after finding the end, we stop the algorithm and animate the path
+        if (foundTheEnd && !checkAfterFindingEnd) {
           const end = grid.flat().find((box) => box.type === BoxType.end);
           if (!end) return newGrid;
-          setCurrentPath(createPathFromBox(end));
+          setCurrentCheckingPath(createPathFromBox(end));
           animatePath(createPathFromBox(end));
           clearInterval(interval);
           setFinished(true);
         }
-
-        if (
+        // If we didn't find the end, but there are no boxes left to check, we stop the algorithm
+        else if (
           grid.flat().every((box) => box.type !== BoxType.checking) &&
-          (!gotThere || checkAfterFindingEnd)
+          (!foundTheEnd || checkAfterFindingEnd)
         ) {
-          setCurrentPath(createPathFromBox(end));
+          setCurrentCheckingPath(createPathFromBox(end));
           animatePath(createPathFromBox(end));
           clearInterval(interval);
           setFinished(true);
-        } else if (
+        }
+        // If we found the end, and there are no boxes left to check, we stop the algorithm
+        else if (
           grid.flat().every((box) => box.type !== BoxType.checking) &&
-          gotThere &&
+          foundTheEnd &&
           checkAfterFindingEnd
         ) {
           setFinished(true);
           clearInterval(interval);
-          setCurrentPath(createPathFromBox(end));
+          setCurrentCheckingPath(createPathFromBox(end));
         }
         return newGrid;
       });
@@ -380,7 +378,7 @@ export default function Container({}: Props) {
     }
   };
 
-  const addWeights = () => {
+  const addRandomWeights = () => {
     setGrid((old) => {
       const newGrid = [...old];
       for (let i = 0; i < rows; i++) {
@@ -394,7 +392,7 @@ export default function Container({}: Props) {
     });
   };
 
-  const createMaze = () => {
+  const createRandomMaze = () => {
     setGrid((oldGrid) => {
       const newGrid = [...oldGrid];
       for (let i = 0; i < rows; i++) {
@@ -419,19 +417,18 @@ export default function Container({}: Props) {
           setDiagonalAlowed={setDiagonalAlowed}
           algorithm={algorithm}
           setAlgorithm={setAlgorithm}
-          createMaze={createMaze}
-          addWeights={addWeights}
+          createMaze={createRandomMaze}
+          addWeights={addRandomWeights}
           checkAfterFindingEnd={checkAfterFindingEnd}
           setCheckAfterFindingEnd={setCheckAfterFindingEnd}
           finished={finished}
-          setFinished={setFinished}
         />
         <Grid
           grid={grid}
           setGrid={setGrid}
           rows={rows}
           columns={columns}
-          currentPath={currentPath}
+          currentPath={currentCheckingPath}
         />
         <Legend />
         <footer>

@@ -60,7 +60,9 @@ export default function Grid({
       <div className="grid-wrapper">
         <div
           className={`grid ${
-            grid.flat().some((box) => box.type === "path") ? "animate" : ""
+            grid.flat().some((box) => box.type === BoxType.path)
+              ? "animate"
+              : ""
           }`}
           style={{
             gridTemplateColumns: `repeat(${columns},1fr)`,
@@ -102,7 +104,9 @@ export default function Grid({
                   onContextMenu={(e) => {
                     e.preventDefault();
                   }}>
-                  {box.type !== "start" && box.type !== "end" ? box.weight : ""}
+                  {box.type !== BoxType.start && box.type !== BoxType.end
+                    ? box.weight
+                    : ""}
                 </div>
               );
             });

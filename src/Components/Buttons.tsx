@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AlgorithmEnum } from "./Container";
-import { GridType } from "./Grid";
 
 type Props = {
   diagonalAlowed: boolean;
@@ -8,7 +7,6 @@ type Props = {
   checkAfterFindingEnd: boolean;
   setCheckAfterFindingEnd: (checkAfterFindingEnd: boolean) => void;
   finished: boolean;
-  setFinished: (checkAfterFindingEnd: boolean) => void;
   algorithm: AlgorithmEnum;
   setAlgorithm: (algorithm: AlgorithmEnum) => void;
   startAlgorithm: (algorithm: AlgorithmEnum) => void;
@@ -29,15 +27,12 @@ export default function Buttons({
   checkAfterFindingEnd,
   setCheckAfterFindingEnd,
   finished,
-  setFinished,
 }: Props) {
   const algorithms: AlgorithmEnum[] = Object.values(AlgorithmEnum);
   const [isIntervalOn, setIsIntervalOn] = useState(false);
 
   useEffect(() => {
     if (isIntervalOn) {
-      // setTimeout(() => {
-      //   reset();
       resetButton.current?.click();
       mazeButton.current?.click();
       weightsButton.current?.click();
@@ -59,22 +54,18 @@ export default function Buttons({
       const startAfter = 3000;
       setTimeout(() => {
         if (isIntervalOn) resetButton.current?.click();
-        // reset();
       }, startAfter);
 
       setTimeout(() => {
         if (isIntervalOn) mazeButton.current?.click();
-        // createMaze();
       }, startAfter + 500);
 
       setTimeout(() => {
         if (isIntervalOn) weightsButton.current?.click();
-        // addWeights();
       }, startAfter + 1000);
 
       setTimeout(() => {
         if (isIntervalOn) startButton.current?.click();
-        // startAlgorithm(algorithm);
       }, startAfter + 1500);
     }
   }, [finished]);
