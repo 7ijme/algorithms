@@ -296,7 +296,6 @@ export default function Container({}: Props) {
           clearInterval(interval);
           setCurrentPath(createPath(end));
         }
-        console.log("still running");
         return newGrid;
       });
     }, 0);
@@ -424,7 +423,6 @@ export default function Container({}: Props) {
           clearInterval(interval);
           setCurrentPath(createPath(end));
         }
-        console.log("still running");
         return newGrid;
       });
     }, 0);
