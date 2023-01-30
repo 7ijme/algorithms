@@ -73,4 +73,8 @@ button:focus-visible {
   button {
     background-color: #333;
   }
+  
+  .button, box {
+    color: #fff;
+    }
 }
