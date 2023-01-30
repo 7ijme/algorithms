@@ -1,5 +1,5 @@
-import React from "react";
-import { Algorithm } from "./Container";
+import React, { useEffect, useRef, useState } from "react";
+import { AlgorithmEnum } from "./Container";
 import { GridType } from "./Grid";
 
 type Props = {
@@ -7,9 +7,11 @@ type Props = {
   setDiagonalAlowed: (diagonalAlowed: boolean) => void;
   checkAfterFindingEnd: boolean;
   setCheckAfterFindingEnd: (checkAfterFindingEnd: boolean) => void;
-  algorithm: Algorithm;
-  setAlgorithm: (algorithm: Algorithm) => void;
-  startAlgorithm: (algorithm: Algorithm) => void;
+  finished: boolean;
+  setFinished: (checkAfterFindingEnd: boolean) => void;
+  algorithm: AlgorithmEnum;
+  setAlgorithm: (algorithm: AlgorithmEnum) => void;
+  startAlgorithm: (algorithm: AlgorithmEnum) => void;
   reset: () => void;
   createMaze: () => void;
   addWeights: () => void;
@@ -26,16 +28,90 @@ export default function Buttons({
   addWeights,
   checkAfterFindingEnd,
   setCheckAfterFindingEnd,
+  finished,
+  setFinished,
 }: Props) {
-  const algorithms: Algorithm[] = ["dijkstra", "astar"];
+  const algorithms: AlgorithmEnum[] = Object.values(AlgorithmEnum);
+  const [isIntervalOn, setIsIntervalOn] = useState(false);
+
+  useEffect(() => {
+    if (isIntervalOn) {
+      // setTimeout(() => {
+      //   reset();
+      resetButton.current?.click();
+      mazeButton.current?.click();
+      weightsButton.current?.click();
+
+      setTimeout(() => {
+        startButton.current?.click();
+      }, 500);
+    }
+  }, [isIntervalOn]);
+
+  const resetButton = useRef<HTMLButtonElement>(null);
+  const mazeButton = useRef<HTMLButtonElement>(null);
+  const weightsButton = useRef<HTMLButtonElement>(null);
+  const startButton = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    console.log("finished", finished);
+    if (finished && isIntervalOn) {
+      const startAfter = 3000;
+      setTimeout(() => {
+        if (isIntervalOn) resetButton.current?.click();
+        // reset();
+      }, startAfter);
+
+      setTimeout(() => {
+        if (isIntervalOn) mazeButton.current?.click();
+        // createMaze();
+      }, startAfter + 500);
+
+      setTimeout(() => {
+        if (isIntervalOn) weightsButton.current?.click();
+        // addWeights();
+      }, startAfter + 1000);
+
+      setTimeout(() => {
+        if (isIntervalOn) startButton.current?.click();
+        // startAlgorithm(algorithm);
+      }, startAfter + 1500);
+    }
+  }, [finished]);
 
   return (
     <>
       <div className="buttons">
-        <button onClick={startAlgorithm.bind(null, algorithm)}>Start</button>
-        <button onClick={createMaze}>Create maze</button>
-        <button onClick={addWeights}>Add weights</button>
-        <button onClick={reset}>Clear</button>
+        <button
+          onClick={startAlgorithm.bind(null, algorithm)}
+          ref={startButton}>
+          Start
+        </button>
+        <button
+          onClick={createMaze}
+          ref={mazeButton}>
+          Create maze
+        </button>
+        <button
+          onClick={addWeights}
+          ref={weightsButton}>
+          Add weights
+        </button>
+        <button
+          onClick={reset}
+          ref={resetButton}>
+          Clear
+        </button>
+        <span className="check-box-span">
+          <label htmlFor="repeat">Repeat</label>
+          <input
+            type="checkbox"
+            name="repeat"
+            id="repeat"
+            checked={isIntervalOn}
+            onChange={(e) => setIsIntervalOn(e.target.checked)}
+          />
+        </span>
         <span className="check-box-span">
           <label htmlFor="diagonal">Diagonal</label>
           <input
@@ -59,7 +135,7 @@ export default function Buttons({
 
         <label htmlFor="algorithm">Algorithm</label>
         <select
-          onChange={(e) => setAlgorithm(e.target.value as Algorithm)}
+          onChange={(e) => setAlgorithm(e.target.value as AlgorithmEnum)}
           id="algorithm"
           value={algorithm}>
           {algorithms.map((algorithm, i) => {
