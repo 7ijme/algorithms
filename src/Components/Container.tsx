@@ -301,15 +301,6 @@ export default function Container({}: Props) {
     }, 0);
   };
 
-  const aStarCheck = (box: Box, neighbor: Box, end: Box) => {
-    // check if neighbor is closer to end than box
-    const neighborDistance =
-      Math.abs(end.x - neighbor.x) + Math.abs(end.y - neighbor.y);
-    const boxDistance = Math.abs(end.x - box.x) + Math.abs(end.y - box.y);
-    if (neighborDistance < boxDistance) return true;
-    else return false;
-  };
-
   const astar = () => {
     const start = grid.flat().find((box) => box.type === BoxType.start);
     const end = grid.flat().find((box) => box.type === BoxType.end);
@@ -397,7 +388,7 @@ export default function Container({}: Props) {
           return aDistance - bDistance;
         });
 
-        if (gotThere && checkingNow.length < 1 && !checkAfterFindingEnd) {
+        if (gotThere && !checkAfterFindingEnd) {
           const end = grid.flat().find((box) => box.type === BoxType.end);
           if (!end) return newGrid;
           setCurrentPath(createPath(end));
