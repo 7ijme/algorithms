@@ -233,18 +233,9 @@ export default function Container({}: Props) {
           (!gotThere || checkAfterFindingEnd)
         ) {
           setCurrentCheckingPath(createPathFromBox(end));
+          animatePath(createPathFromBox(end));
           clearInterval(interval);
           setFinished(true);
-        }
-        // If we found the end, and there are no boxes left to check, we stop the algorithm
-        else if (
-          grid.flat().every((box) => box.type !== BoxType.checking) &&
-          gotThere &&
-          checkAfterFindingEnd
-        ) {
-          setFinished(true);
-          clearInterval(interval);
-          setCurrentCheckingPath(createPathFromBox(end));
         }
         return newGrid;
       });
@@ -350,16 +341,6 @@ export default function Container({}: Props) {
           animatePath(createPathFromBox(end));
           clearInterval(interval);
           setFinished(true);
-        }
-        // If we found the end, and there are no boxes left to check, we stop the algorithm
-        else if (
-          grid.flat().every((box) => box.type !== BoxType.checking) &&
-          foundTheEnd &&
-          checkAfterFindingEnd
-        ) {
-          setFinished(true);
-          clearInterval(interval);
-          setCurrentCheckingPath(createPathFromBox(end));
         }
         return newGrid;
       });
