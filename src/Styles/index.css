@@ -34,7 +34,7 @@ body {
   margin: 0;
   /* display: flex;
   place-items: center; */
-  min-width: 100vw;
+  min-width: 100%;
   min-height: 100vh;
 }
 
@@ -73,8 +73,9 @@ button:focus-visible {
   button {
     background-color: #333;
   }
-  
-  button, .box {
+
+  button,
+  .box {
     color: #fff;
   }
 }

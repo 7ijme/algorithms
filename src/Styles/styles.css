@@ -4,10 +4,10 @@
   align-items: center;
   justify-content: center; */
   min-height: 100vh;
-  width: 100vw;
+  /* width: 100vw; */
   position: relative;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr auto auto;
 }
 
 .grid-wrapper {
